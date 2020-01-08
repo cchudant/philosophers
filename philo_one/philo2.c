@@ -6,7 +6,7 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:50:50 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/08 08:27:35 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/08 12:14:53 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,8 @@ void	*philo_entrypoint(void *v_ctx)
 	int			i;
 
 	ctx = v_ctx;
-	i = -1;
-	while (++i < ctx->args->times_must_eat || !ctx->args->times_must_eat)
+	i = 0;
+	while (1)
 	{
 		print_status(ctx, THINKING);
 		philo_take_forks(ctx);
@@ -68,6 +68,8 @@ void	*philo_entrypoint(void *v_ctx)
 		handle_th_err(pthread_mutex_unlock(
 			&ctx->gbl->forks[(ctx->n + 1) % ctx->args->n_philo]),
 			"Error while unlocking the mutex!\n");
+		if (++i >= ctx->args->times_must_eat && ctx->args->times_must_eat)
+			break ;
 		print_status(ctx, SLEEPING);
 		usleep(ctx->args->time_to_sleep * 1000);
 	}

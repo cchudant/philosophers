@@ -6,7 +6,7 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:24:16 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/08 13:09:12 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/08 13:48:46 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include <pthread.h>
 # include <sys/time.h>
 # include <semaphore.h>
+# include <signal.h>
 
 # define SEMAPHORE_NAME "/philosophers"
 
@@ -53,8 +54,7 @@ typedef struct			s_philoctx
 	const t_philoargs	*args;
 	t_global_state		*gbl;
 	unsigned long		last_eat;
-	bool				stopped;
-	pthread_t			thread;
+	pid_t				pid;
 }						t_philoctx;
 
 size_t					ft_strlen(char *s);
@@ -66,7 +66,8 @@ unsigned long			get_curr_time_ms(void);
 
 bool					handle_th_err(int err, char *str);
 
-void					monitor(t_philoctx *ctxs, int n_philo);
+void					wait_children(t_philoctx *ctxs, int n_philo);
+void					*monitor_one(void *ctx);
 
 void					print_status(const t_philoctx *ctx, t_philostatus s);
 bool					init_global_state(const t_philoargs *args,

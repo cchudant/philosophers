@@ -6,7 +6,7 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:50:50 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/08 13:57:47 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/08 14:13:10 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,11 +36,15 @@ void	print_status(const t_philoctx *ctx, t_philostatus s)
 
 void	*philo_entrypoint(void *v_ctx)
 {
+	pthread_t	monitor;
 	t_philoctx	*ctx;
 	int			i;
 
 	ctx = v_ctx;
 	i = 0;
+	usleep(1);
+	handle_th_err(pthread_create(&monitor, NULL, &monitor_one, ctx),
+			"Error: pthread create failed!\n");
 	while (1)
 	{
 		print_status(ctx, THINKING);
@@ -58,6 +62,6 @@ void	*philo_entrypoint(void *v_ctx)
 		print_status(ctx, SLEEPING);
 		usleep(ctx->args->time_to_sleep * 1000);
 	}
-	ctx->stopped = true;
+	exit(0);
 	return (NULL);
 }

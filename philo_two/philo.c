@@ -6,7 +6,7 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:50:50 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/08 08:50:29 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/08 13:24:49 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 bool	init_global_state(const t_philoargs *args, t_global_state *gbl)
 {
-	(void)args;
-	gbl->semaphore = sem_open(SEMAPHORE_NAME, O_CREAT);
-	if (!gbl->semaphore)
+	sem_unlink(SEMAPHORE_NAME);
+	gbl->semaphore = sem_open(SEMAPHORE_NAME, O_CREAT, 0666, args->n_philo);
+	if (!gbl->semaphore || gbl->semaphore == SEM_FAILED)
 	{
 		ft_putstr(1, "Error: cannot create semaphore!\n");
 		return (false);
