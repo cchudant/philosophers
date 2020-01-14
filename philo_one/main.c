@@ -6,7 +6,7 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:25:12 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/08 08:27:42 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/14 17:54:03 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ static int	parse_pint(char *str)
 	return (res);
 }
 
-bool	handle_th_err(int err, char *str)
+bool		handle_th_err(int err, char *str)
 {
 	if (err)
 	{

@@ -6,13 +6,13 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:50:50 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/08 14:13:10 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/14 17:57:51 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	print_status(const t_philoctx *ctx, t_philostatus s)
+void		print_status(const t_philoctx *ctx, t_philostatus s)
 {
 	char	buf[1024];
 	int		index;
@@ -34,7 +34,20 @@ void	print_status(const t_philoctx *ctx, t_philostatus s)
 	write(1, buf, index);
 }
 
-void	*philo_entrypoint(void *v_ctx)
+static void	philo_miam(t_philoctx *ctx)
+{
+	sem_wait(ctx->gbl->semaphore);
+	print_status(ctx, TAKEN_FORK);
+	sem_wait(ctx->gbl->semaphore);
+	print_status(ctx, TAKEN_FORK);
+	print_status(ctx, EATING);
+	ctx->last_eat = get_curr_time_ms();
+	usleep(ctx->args->time_to_eat * 1000);
+	sem_post(ctx->gbl->semaphore);
+	sem_post(ctx->gbl->semaphore);
+}
+
+void		*philo_entrypoint(void *v_ctx)
 {
 	pthread_t	monitor;
 	t_philoctx	*ctx;
@@ -48,15 +61,7 @@ void	*philo_entrypoint(void *v_ctx)
 	while (1)
 	{
 		print_status(ctx, THINKING);
-		sem_wait(ctx->gbl->semaphore);
-		print_status(ctx, TAKEN_FORK);
-		sem_wait(ctx->gbl->semaphore);
-		print_status(ctx, TAKEN_FORK);
-		print_status(ctx, EATING);
-		ctx->last_eat = get_curr_time_ms();
-		usleep(ctx->args->time_to_eat * 1000);
-		sem_post(ctx->gbl->semaphore);
-		sem_post(ctx->gbl->semaphore);
+		philo_miam(ctx);
 		if (++i >= ctx->args->times_must_eat && ctx->args->times_must_eat)
 			break ;
 		print_status(ctx, SLEEPING);
