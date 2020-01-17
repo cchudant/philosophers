@@ -6,7 +6,7 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:24:16 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/08 08:11:57 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/16 16:48:33 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,33 +14,43 @@
 
 static void	monitor_exit(t_philoctx *ctx)
 {
-	pthread_detach(ctx->thread);
 	print_status(ctx, DIED);
 	ctx->stopped = true;
 	exit(0);
 }
 
-void		monitor(t_philoctx *ctxs, int n_philo)
+static void	*monitor_one(void *ctx_v)
 {
+	t_philoctx		*ctx;
 	unsigned long	time;
-	int				i;
-	bool			all_done;
 
-	all_done = false;
-	while (!all_done)
+	ctx = ctx_v;
+	while (!ctx->stopped)
 	{
-		all_done = true;
+		sem_wait(ctx->gbl->eating_semaphores[ctx->n]);
 		time = get_curr_time_ms();
-		i = -1;
-		while (++i < n_philo)
-		{
-			if (ctxs[i].stopped)
-				continue;
-			all_done = false;
-			if (time - ctxs[i].last_eat >=
-					(unsigned long)ctxs[i].args->time_to_die)
-				monitor_exit(&ctxs[i]);
-		}
+		if (time - ctx->last_eat >=
+				(unsigned long)ctx->args->time_to_die)
+			monitor_exit(ctx);
+		sem_post(ctx->gbl->eating_semaphores[ctx->n]);
 		usleep(8 * 1000);
 	}
+	return (NULL);
+}
+
+void		monitor(t_philoctx *ctxs, int n_philo)
+{
+	int i;
+
+	i = -1;
+	while (++i < n_philo)
+		handle_th_err(pthread_create(&ctxs[i].monitor_thread, NULL,
+				&monitor_one, &ctxs[i]),
+				"Error: monitor pthread create failed!\n");
+	i = -1;
+	while (++i < n_philo)
+		pthread_join(ctxs[i].monitor_thread, NULL);
+	i = -1;
+	while (++i < n_philo)
+		pthread_join(ctxs[i].thread, NULL);
 }

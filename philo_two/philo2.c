@@ -6,7 +6,7 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:50:50 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/08 13:57:47 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/16 16:48:03 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,27 @@ void	print_status(const t_philoctx *ctx, t_philostatus s)
 		ft_bufputstr(buf, &index, " has taken a fork\n");
 	else if (s == DIED)
 		ft_bufputstr(buf, &index, " died\n");
-	write(1, buf, index);
+	sem_wait(ctx->gbl->stdout_semaphore);
+	if (!ctx->gbl->sim_stopped)
+		write(1, buf, index);
+	if (s == DIED)
+		ctx->gbl->sim_stopped = true;
+	sem_post(ctx->gbl->stdout_semaphore);
+}
+
+void	philo_take_forks_and_eat(t_philoctx *ctx)
+{
+	sem_wait(ctx->gbl->forks);
+	print_status(ctx, TAKEN_FORK);
+	sem_wait(ctx->gbl->forks);
+	print_status(ctx, TAKEN_FORK);
+	print_status(ctx, EATING);
+	sem_wait(ctx->gbl->eating_semaphores[ctx->n]);
+	ctx->last_eat = get_curr_time_ms();
+	usleep(ctx->args->time_to_eat * 1000);
+	sem_post(ctx->gbl->forks);
+	sem_post(ctx->gbl->forks);
+	sem_post(ctx->gbl->eating_semaphores[ctx->n]);
 }
 
 void	*philo_entrypoint(void *v_ctx)
@@ -44,15 +64,7 @@ void	*philo_entrypoint(void *v_ctx)
 	while (1)
 	{
 		print_status(ctx, THINKING);
-		sem_wait(ctx->gbl->semaphore);
-		print_status(ctx, TAKEN_FORK);
-		sem_wait(ctx->gbl->semaphore);
-		print_status(ctx, TAKEN_FORK);
-		print_status(ctx, EATING);
-		ctx->last_eat = get_curr_time_ms();
-		usleep(ctx->args->time_to_eat * 1000);
-		sem_post(ctx->gbl->semaphore);
-		sem_post(ctx->gbl->semaphore);
+		philo_take_forks_and_eat(ctx);
 		if (++i >= ctx->args->times_must_eat && ctx->args->times_must_eat)
 			break ;
 		print_status(ctx, SLEEPING);

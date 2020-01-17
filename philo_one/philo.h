@@ -6,7 +6,7 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:24:16 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/08 08:28:01 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/16 17:20:09 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,10 @@ typedef struct			s_philoargs
 
 typedef struct			s_global_state
 {
+	bool				sim_stopped;
+	pthread_mutex_t		stdout_mutex;
 	pthread_mutex_t		*forks;
+	pthread_mutex_t		*eating_mutexes;
 }						t_global_state;
 
 typedef struct			s_philoctx
@@ -52,8 +55,10 @@ typedef struct			s_philoctx
 	unsigned long		last_eat;
 	bool				stopped;
 	pthread_t			thread;
+	pthread_t			monitor_thread;
 }						t_philoctx;
 
+void					*ft_calloc(size_t len);
 size_t					ft_strlen(char *s);
 ssize_t					ft_putstr(int fd, char *s);
 bool					ft_append(char **dst, char *s);

@@ -6,7 +6,7 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:24:16 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/08 13:09:12 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/16 17:20:16 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,9 @@
 # include <sys/time.h>
 # include <semaphore.h>
 
-# define SEMAPHORE_NAME "/philosophers"
+# define SEM_FORKS "/philo_forks"
+# define SEM_STDOUT "/philo_stdout"
+# define SEM_EAT_PREFIX "/philo_eat_"
 
 typedef enum			e_philostatus
 {
@@ -44,7 +46,11 @@ typedef struct			s_philoargs
 
 typedef struct			s_global_state
 {
-	sem_t				*semaphore;
+	bool				sim_stopped;
+	sem_t				*forks;
+	sem_t				*stdout_semaphore;
+	sem_t				**eating_semaphores;
+	char				**eating_names;
 }						t_global_state;
 
 typedef struct			s_philoctx
@@ -55,8 +61,10 @@ typedef struct			s_philoctx
 	unsigned long		last_eat;
 	bool				stopped;
 	pthread_t			thread;
+	pthread_t			monitor_thread;
 }						t_philoctx;
 
+void					*ft_calloc(size_t len);
 size_t					ft_strlen(char *s);
 ssize_t					ft_putstr(int fd, char *s);
 bool					ft_append(char **dst, char *s);

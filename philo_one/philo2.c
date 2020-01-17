@@ -6,7 +6,7 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:50:50 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/08 12:14:53 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/17 08:15:40 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,22 +31,27 @@ void	print_status(const t_philoctx *ctx, t_philostatus s)
 		ft_bufputstr(buf, &index, " has taken a fork\n");
 	else if (s == DIED)
 		ft_bufputstr(buf, &index, " died\n");
-	write(1, buf, index);
+	pthread_mutex_lock(&ctx->gbl->stdout_mutex);
+	if (!ctx->gbl->sim_stopped)
+		write(1, buf, index);
+	if (s == DIED)
+		ctx->gbl->sim_stopped = true;
+	pthread_mutex_unlock(&ctx->gbl->stdout_mutex);
 }
 
-void	philo_take_forks(t_philoctx *ctx)
+void	philo_take_forks_and_eat(t_philoctx *ctx)
 {
-	int first;
-	int second;
-
-	first = ctx->n % 2 == 0 ? ctx->n : (ctx->n + 1) % ctx->args->n_philo;
-	second = ctx->n % 2 != 0 ? ctx->n : (ctx->n + 1) % ctx->args->n_philo;
-	handle_th_err(pthread_mutex_lock(&ctx->gbl->forks[first]),
-		"Error while locking the mutex!\n");
+	pthread_mutex_lock(&ctx->gbl->forks[ctx->n]);
 	print_status(ctx, TAKEN_FORK);
-	handle_th_err(pthread_mutex_lock(&ctx->gbl->forks[second]),
-		"Error while locking the mutex!\n");
+	pthread_mutex_lock(&ctx->gbl->forks[(ctx->n + 1) % ctx->args->n_philo]);
 	print_status(ctx, TAKEN_FORK);
+	print_status(ctx, EATING);
+	pthread_mutex_lock(&ctx->gbl->eating_mutexes[ctx->n]);
+	ctx->last_eat = get_curr_time_ms();
+	usleep(ctx->args->time_to_eat * 1000);
+	pthread_mutex_unlock(&ctx->gbl->forks[ctx->n]);
+	pthread_mutex_unlock(&ctx->gbl->forks[(ctx->n + 1) % ctx->args->n_philo]);
+	pthread_mutex_unlock(&ctx->gbl->eating_mutexes[ctx->n]);
 }
 
 void	*philo_entrypoint(void *v_ctx)
@@ -59,15 +64,7 @@ void	*philo_entrypoint(void *v_ctx)
 	while (1)
 	{
 		print_status(ctx, THINKING);
-		philo_take_forks(ctx);
-		print_status(ctx, EATING);
-		ctx->last_eat = get_curr_time_ms();
-		usleep(ctx->args->time_to_eat * 1000);
-		handle_th_err(pthread_mutex_unlock(&ctx->gbl->forks[ctx->n]),
-			"Error while unlocking the mutex!\n");
-		handle_th_err(pthread_mutex_unlock(
-			&ctx->gbl->forks[(ctx->n + 1) % ctx->args->n_philo]),
-			"Error while unlocking the mutex!\n");
+		philo_take_forks_and_eat(ctx);
 		if (++i >= ctx->args->times_must_eat && ctx->args->times_must_eat)
 			break ;
 		print_status(ctx, SLEEPING);

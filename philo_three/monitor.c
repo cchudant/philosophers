@@ -6,25 +6,32 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:24:16 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/08 13:50:59 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/17 07:46:28 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void		*monitor_one(void *v_ctx)
+static void	monitor_exit(t_philoctx *ctx)
 {
-	t_philoctx *ctx;
+	print_status(ctx, DIED);
+	exit(0);
+}
 
-	ctx = v_ctx;
+void		*monitor_one(void *ctx_v)
+{
+	t_philoctx		*ctx;
+	unsigned long	time;
+
+	ctx = ctx_v;
 	while (1)
 	{
-		if (get_curr_time_ms() - ctx->last_eat >=
+		sem_wait(ctx->gbl->eating_semaphores[ctx->n]);
+		time = get_curr_time_ms();
+		if (time - ctx->last_eat >=
 				(unsigned long)ctx->args->time_to_die)
-		{
-			print_status(ctx, DIED);
-			exit(0);
-		}
+			monitor_exit(ctx);
+		sem_post(ctx->gbl->eating_semaphores[ctx->n]);
 		usleep(8 * 1000);
 	}
 	return (NULL);

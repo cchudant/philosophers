@@ -6,7 +6,7 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:25:35 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/08 08:05:46 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/17 07:38:20 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,19 @@ size_t	ft_strlen(char *s)
 ssize_t	ft_putstr(int fd, char *s)
 {
 	return (write(fd, s, ft_strlen(s)));
+}
+
+void	*ft_calloc(size_t len)
+{
+	uint8_t	*ptr;
+	size_t	i;
+
+	if (!(ptr = malloc(len)))
+		return (NULL);
+	i = -1;
+	while (++i < len)
+		ptr[i] = 0;
+	return (ptr);
 }
 
 bool	ft_append(char **dst, char *s)

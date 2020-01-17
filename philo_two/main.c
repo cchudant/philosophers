@@ -6,7 +6,7 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:25:12 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/14 17:55:36 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/16 17:14:40 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,8 @@ int			main(int ac, char **av)
 	t_philoargs		args;
 	t_global_state	gbl;
 
-	args.start = get_curr_time_ms();
+	gbl = (t_global_state) { 0 };
+	args = (t_philoargs) { .start = get_curr_time_ms() };
 	if (!parse_args(&args, ac, av))
 	{
 		ft_putstr(2, "Usage: ");
