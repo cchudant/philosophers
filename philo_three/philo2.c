@@ -6,13 +6,13 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:50:50 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/17 07:50:28 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/20 15:54:25 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void		print_status(const t_philoctx *ctx, t_philostatus s)
+void	print_status(const t_philoctx *ctx, t_philostatus s)
 {
 	char	buf[1024];
 	int		index;
@@ -52,7 +52,7 @@ void	philo_take_forks_and_eat(t_philoctx *ctx)
 	sem_post(ctx->gbl->eating_semaphores[ctx->n]);
 }
 
-void		*philo_entrypoint(void *v_ctx)
+void	*philo_entrypoint(void *v_ctx)
 {
 	pthread_t	monitor;
 	t_philoctx	*ctx;

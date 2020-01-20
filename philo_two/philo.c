@@ -6,7 +6,7 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:50:50 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/17 07:34:30 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/20 15:53:48 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ bool	init_global_state(const t_philoargs *args, t_global_state *gbl)
 	if (!wrap_sem_open(&gbl->forks, SEM_FORKS, args->n_philo) ||
 		!wrap_sem_open(&gbl->stdout_semaphore, SEM_STDOUT, 1))
 		return (false);
-	if (!(gbl->eating_names = ft_calloc(sizeof(char *) * args->n_philo)) || 
+	if (!(gbl->eating_names = ft_calloc(sizeof(char *) * args->n_philo)) ||
 		!(gbl->eating_semaphores = ft_calloc(sizeof(sem_t *) * args->n_philo)))
 		return (false);
 	i = -1;
@@ -98,7 +98,7 @@ bool	spawn_philos(const t_philoargs *args, t_global_state *gbl)
 		handle_th_err(pthread_create(&ctxs[i].thread, NULL,
 				&philo_entrypoint, &ctxs[i]),
 				"Error: pthread create failed!\n");
-		usleep(100);
+		usleep(10);
 	}
 	monitor(ctxs, args->n_philo);
 	free(ctxs);

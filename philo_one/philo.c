@@ -6,7 +6,7 @@
 /*   By: cchudant <cchudant@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/01/02 22:50:50 by cchudant          #+#    #+#             */
-/*   Updated: 2020/01/16 17:18:57 by cchudant         ###   ########.fr       */
+/*   Updated: 2020/01/20 15:52:32 by cchudant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@ bool	init_global_state(const t_philoargs *args, t_global_state *gbl)
 
 	if (!(gbl->forks = ft_calloc(sizeof(pthread_mutex_t) * args->n_philo)))
 		return (false);
-	if (!(gbl->eating_mutexes = ft_calloc(sizeof(pthread_mutex_t) * args->n_philo)))
+	if (!(gbl->eating_mutexes = ft_calloc(sizeof(pthread_mutex_t)
+			* args->n_philo)))
 		return (false);
 	handle_th_err(pthread_mutex_init(&gbl->stdout_mutex, NULL),
 			"Error: stdout mutex initialization failed!\n");
@@ -63,7 +64,7 @@ bool	spawn_philos(const t_philoargs *args, t_global_state *gbl)
 		handle_th_err(pthread_create(&ctxs[i].thread, NULL,
 				&philo_entrypoint, &ctxs[i]),
 				"Error: pthread create failed!\n");
-		usleep(100);
+		usleep(10);
 	}
 	monitor(ctxs, args->n_philo);
 	free(ctxs);
